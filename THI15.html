@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แหล่งเรียนรู้การวิเคราะห์และพัฒนาเว็บแอปพลิเคชัน THI-15</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
+                    colors: {
+                        brand: '#0ea5e9', // Sky blue
+                        accent: '#f59e0b', // Amber
+                        success: '#10b981', // Emerald
+                        danger: '#ef4444', // Red
+                        dark: '#0f172a' // Slate 900
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container { position: relative; width: 100%; max-width: 320px; margin-left: auto; margin-right: auto; height: 260px; }
+        .session-tab.active { background-color: #0ea5e9; color: white; border-color: #0ea5e9; }
+        body { background-color: #f8fafc; }
+        .interactive-line { stroke: #cbd5e1; stroke-width: 2; stroke-dasharray: 4; animation: dash 2s linear infinite; }
+        @keyframes dash { to { stroke-dashoffset: -20; } }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <span class="inline-block px-4 py-1.5 bg-sky-50 text-brand text-xs font-semibold rounded-full border border-sky-200 mb-3">
+                📖 แหล่งการเรียนรู้วิชา 0208304326 โปรแกรมคอมพิวเตอร์สำหรับงานเวชระเบียน
+            </span>
+            <h1 class="text-3xl md:text-4xl font-bold text-dark mb-4">🎓 ระบบการเรียนรู้ด้วยตนเอง: พัฒนาเว็บแอปประเมินความสุข THI-15</h1>
+            <p class="text-slate-600 max-w-2xl mx-auto text-sm md:text-base">
+                ศูนย์รวมเนื้อหาบทเรียนการพัฒนาเว็บแอปพลิเคชันระบบสุขภาพดิจิทัล
+            </p>
+        </header>
+
+        <!-- Main Content Area -->
+        <div id="main-content" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Sidebar Menu -->
+            <aside class="lg:col-span-4 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h2 class="font-bold text-lg mb-4 flex items-center gap-2 text-dark">
+                        📂 เมนูนำทางบทเรียน
+                    </h2>
+                    <div class="flex flex-col gap-2.5" id="tab-container">
+                        <button onclick="showSession(1)" id="tab-1" class="session-tab active text-left px-4 py-3 rounded-xl border border-slate-200 transition-all hover:bg-sky-50 font-medium text-sm flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">คาบเรียนที่ 1</span>
+                            <span class="mt-0.5">ทฤษฎี SDLC และโครงสร้าง IPO</span>
+                        </button>
+                        <button onclick="showSession(2)" id="tab-2" class="session-tab text-left px-4 py-3 rounded-xl border border-slate-200 transition-all hover:bg-sky-50 font-medium text-sm flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">คาบเรียนที่ 2</span>
+                            <span class="mt-0.5">มาตรฐานการออกแบบตารางข้อมูล</span>
+                        </button>
+                        <button onclick="showSession(3)" id="tab-3" class="session-tab text-left px-4 py-3 rounded-xl border border-slate-200 transition-all hover:bg-sky-50 font-medium text-sm flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">คาบเรียนที่ 3</span>
+                            <span class="mt-0.5">แผนภาพความสัมพันธ์และเส้นทางข้อมูล</span>
+                        </button>
+                        <button onclick="showSession(4)" id="tab-4" class="session-tab text-left px-4 py-3 rounded-xl border border-slate-200 transition-all hover:bg-sky-50 font-medium text-sm flex flex-col">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">คาบเรียนที่ 4</span>
+                            <span class="mt-0.5">สถาปัตยกรรมและการใช้ AI พัฒนา</span>
+                        </button>
+                        <button onclick="showSession(5)" id="tab-5" class="session-tab text-left px-4 py-3 rounded-xl border border-slate-200 transition-all hover:bg-sky-50 font-medium text-sm flex flex-col border-dashed border-sky-300 bg-sky-50/20">
+                            <span class="text-[10px] text-brand font-bold uppercase flex items-center gap-1">🛠️ ตัวอย่างระบบจริง</span>
+                            <span class="mt-0.5 font-semibold text-sky-950">ซอร์สโค้ด Code.gs & Index.html</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Course Progress Info -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-center text-dark text-sm mb-4">สัดส่วนหน่วยการเรียนรู้</h3>
+                    <div class="chart-container">
+                        <canvas id="skillChart"></canvas>
+                    </div>
+                    <p class="text-[11px] text-center text-slate-400 mt-4 leading-relaxed">
+                        การวิเคราะห์ระบบเชิงทฤษฎี 35% | การออกแบบฐานข้อมูลและ Flow 45% | การเขียนโค้ดและประยุกต์ใช้ AI 20%
+                    </p>
+                </div>
+            </aside>
+
+            <!-- Right Content Area -->
+            <main class="lg:col-span-8">
+                
+                <!-- คาบที่ 1 -->
+                <section id="content-1" class="session-content bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="inline-block px-3 py-1 bg-sky-100 text-brand rounded-full text-xs font-bold tracking-wider">Session 1</div>
+                    
+                    <!-- ส่วนทฤษฎี SDLC 7 ขั้นตอนสำหรับงานสาธารณสุขและเวชระเบียน -->
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-bold text-dark border-b pb-2 flex items-center gap-2">
+                            📖 ทฤษฎีวงจรการพัฒนาระบบ (SDLC 7 ขั้นตอน) ในงานสาธารณสุข
+                        </h2>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            วงจรการพัฒนาระบบ <b>SDLC (Systems Development Life Cycle)</b> อ้างอิงตามมาตรฐานของ IBM คือกระบวนการที่เป็นระบบในการวางแผน สร้าง ทดสอบ และปรับใช้ระบบสารสนเทศ โดยในบริบทของ <b>งานสาธารณสุข สุขภาพ และเวชระเบียนดิจิทัล</b> มีรายละเอียด 7 ขั้นตอนหลักดังนี้:
+                        </p>
+
+                        <!-- ตารางสรุป Deliverables ในงานสุขภาพ -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-100 mb-4">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-50 text-slate-700 uppercase font-semibold">
+                                    <tr>
+                                        <th class="px-4 py-3 border-b">ขั้นตอน (Phase)</th>
+                                        <th class="px-4 py-3 border-b">กิจกรรมหลักในงานสุขภาพดิจิทัล (Key Activities in Health IT)</th>
+                                        <th class="px-4 py-3 border-b">ผลลัพธ์ที่ได้ (Deliverables)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-600 divide-y divide-slate-100">
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-3 font-semibold text-brand">1. Planning (วางแผน)</td>
+                                        <td class="px-4 py-3">กำหนดขอบเขตระบบระเบียนสุขภาพ ค้นหาความเสี่ยงในการจัดการข้อมูลผู้ป่วย และวิเคราะห์ความปลอดภัย PDPA</td>
+                                        <td class="px-4 py-3 font-medium">แผนงานเริ่มต้น / เอกสาร SRS</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-3 font-semibold text-brand">2. Analysis (วิเคราะห์)</td>
+                                        <td class="px-4 py-3">ศึกษาเกณฑ์คัดกรองทางการแพทย์มาตรฐาน (เช่น THI-15) พฤติกรรมผู้ใช้ และความต้องการของแพทย์/พยาบาล</td>
+                                        <td class="px-4 py-3 font-medium">เอกสารข้อกำหนดความต้องการที่สมบูรณ์</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-3 font-semibold text-brand">3. Design (ออกแบบ)</td>
+                                        <td class="px-4 py-3">ออกแบบหน้าจอกรอกประวัติ (EHR UI) กำหนดความสัมพันธ์ของตารางข้อมูล แยกข้อมูลทั่วไปออกจากผลการประเมินเพื่อความปลอดภัย</td>
+                                        <td class="px-4 py-3 font-medium">เอกสารการออกแบบ (SDD) / Prototype</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-3 font-semibold text-brand">4. Coding (เขียนโค้ด)</td>
+                                        <td class="px-4 py-3">เขียนโค้ดจริงโดยประยุกต์ใช้เครื่องมือ AI ช่วยแปลงภาษามนุษย์เป็นสคริปต์คำนวณและบันทึกคะแนนกลับกลุ่มข้อลบ-บวกลง Google Sheets</td>
+                                        <td class="px-4 py-3 font-medium">ระบบต้นแบบเว็บบริการสุขภาพจริง</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-3 font-semibold text-brand">5. Testing (ทดสอบ)</td>
+                                        <td class="px-4 py-3">ทดสอบความแม่นยำของสูตรแปรผลคะแนนทางระบาดวิทยา/สุขภาพจิต ทำลายบั๊ก และอุดช่องโหว่การรั่วไหลของข้อมูลคนไข้</td>
+                                        <td class="px-4 py-3 font-medium">แอปพลิเคชันที่เสถียรและปลอดภัย</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-3 font-semibold text-brand">6. Deployment (ติดตั้ง)</td>
+                                        <td class="px-4 py-3">นำเว็บแอปพลิเคชันระบบสุขภาพขึ้นคลาวด์เปิดให้กลุ่มนักศึกษาและบุคลากรทดลองใช้ พร้อมฝึกอบรมการบันทึกเวชระเบียนที่ถูกต้อง</td>
+                                        <td class="px-4 py-3 font-medium">ระบบที่พร้อมให้บริการแก่สาธารณะ (GA)</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-3 font-semibold text-brand">7. Maintenance (บำรุงรักษา)</td>
+                                        <td class="px-4 py-3">ติดตามผลและอัปเดตระบบอย่างต่อเนื่อง เช่น ปรับสเกลช่วงคะแนนตามคู่มือแพทย์ใหม่ๆ และสำรองข้อมูลสุขภาพอย่างเป็นระบบ</td>
+                                        <td class="px-4 py-3 font-medium">ระบบที่มีเสถียรภาพและทันสมัยเสมอ</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- คำอธิบายรายละเอียด 7 ขั้นตอนแบบเจาะลึกสุขภาพและเวชระเบียน -->
+                        <div class="space-y-4 pt-2">
+                            <div class="border-l-4 border-brand pl-4 space-y-2">
+                                <h4 class="font-bold text-dark text-sm">1. Planning (การวางแผนโครงการระบบระเบียนสุขภาพ)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    เป็นการกำหนดเป้าหมายเพื่อตอบโจทย์ปัญหาทางสาธารณสุข เช่น ปัญหาความเครียดสะสมในวัยเรียน โดยกำหนดขอบเขตว่าแอปพลิเคชันจะต้องจัดเก็บข้อมูลสารสนเทศอะไรบ้าง เพื่อป้องกันไม่ให้ขอบเขตโครงการบานปลาย โดยผู้มีส่วนได้ส่วนเสียประกอบด้วย นักวิเคราะห์ระบบเวชระเบียน แพทย์ และอาจารย์ผู้ดูแลหลักสูตร 
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-brand pl-4 space-y-2">
+                                <h4 class="font-bold text-dark text-sm">2. Analysis (การวิเคราะห์ข้อกำหนดและความเป็นไปได้ทางคลินิก)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    การเปลี่ยนแนวคิดเป็นแบบแปลนที่พร้อมทำจริง โดยรวบรวมเกณฑ์แบบประเมินสุขภาพจิตมาตรฐานจากกรมสุขภาพจิตและข้อกำหนดความปลอดภัยทางกฎหมายสารสนเทศสุขภาพ (เช่น ความลับผู้ป่วย) ผลลัพธ์สุดท้ายคือเอกสารข้อกำหนดความต้องการทางเทคนิคและเวิร์กโฟลว์การไหลของคนไข้ (Patient Workflow) ที่สมบูรณ์
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-brand pl-4 space-y-2">
+                                <h4 class="font-bold text-dark text-sm">3. Design (การออกแบบส่วนเชื่อมต่อและฐานข้อมูลระเบียนสุขภาพ)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    การออกแบบโครงสร้างเชิงเทคนิค เช่น การนำทางในเว็บ (Navigation) ตารางความสัมพันธ์ของฐานข้อมูล และการจำลองสถานการณ์คุกคามทางไซเบอร์ (Threat Modeling) เช่น การเข้ารหัสข้อมูลรหัสนักศึกษาและวันเกิด เพื่อจำกัดสิทธิ์การเข้าถึงประวัติสุขภาพเฉพาะรายบุคคลอย่างแน่นหนา
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-brand pl-4 space-y-2">
+                                <h4 class="font-bold text-dark text-sm">4. Coding (การเขียนโค้ดพัฒนาระบบสุขภาพดิจิทัล)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    การลงมือพัฒนาจริงโดยอ้างอิงจากแผนภาพการออกแบบ เลือกใช้เทคโนโลยีที่ยืดหยุ่น เช่น Google Apps Script และ HTML + Tailwind CSS รวมถึงการใช้เทคนิค <b>Generative AI</b> ช่วยร่างลอจิกซับซ้อน เช่น การแปลผลและวิเคราะห์เกณฑ์ย้อนกลับอัตโนมัติ ช่วยย่นระยะเวลาการพิมพ์โค้ด (Vibe Coding) ให้รวดเร็วยิ่งขึ้น
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-brand pl-4 space-y-2">
+                                <h4 class="font-bold text-dark text-sm">5. Testing (การทดสอบคุณภาพและความสอดคล้องทางการแพทย์)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    ขั้นตอนที่ทีมควบคุมคุณภาพ (QA) และทีมนักวิชาการเวชระเบียน จะร่วมกันตรวจสอบความถูกต้องของระบบ โดยเน้นย้ำ **ความถูกต้องของสูตรคำนวณคะแนนประเมิน (Medical Formula Validation)** เป็นหลัก เพราะหากแปรผลผิดพลาดจะส่งผลกระทบต่อสถิติดัชนีทางสุขภาพ และความน่าเชื่อถือทางระบาดวิทยาอย่างร้ายแรง
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-brand pl-4 space-y-2">
+                                <h4 class="font-bold text-dark text-sm">6. Deployment (การติดตั้งและประเมินผลการใช้งานในพื้นที่จริง)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    การนำรหัสโปรแกรมที่ผ่านการทดสอบขึ้นสู่คลาวด์เซิร์ฟเวอร์ และทดสอบปล่อยระบบในรูปแบบนำร่อง (Beta Test) เพื่อประเมินความสอดคล้องในการใช้งานจริงบนอุปกรณ์มือถือและอุปกรณ์ข้างเคียง ก่อนเปิดตัวใช้งานอย่างเป็นทางการ (General Availability - GA) เพื่ออำนวยความสะดวกให้แก่นักศึกษากลุ่มเป้าหมายทั้งหมด
+                                </p>
+                            </div>
+
+                            <div class="border-l-4 border-brand pl-4 space-y-2">
+                                <h4 class="font-bold text-dark text-sm">7. Maintenance (การบำรุงรักษาระบบและสำรองฐานข้อมูลอย่างต่อเนื่อง)</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    ระบบเวชระเบียนสุขภาพจำเป็นต้องมีการตรวจสอบดูแลอยู่ตลอดเวลาเพื่อรับประกันการเข้าถึงข้อมูลที่ลื่นไหล การออกสติกเกอร์แพตช์อุดรอยรั่วความปลอดภัย การพัฒนาปรับปรุงระบบตามเกณฑ์สุขภาพจิตใหม่ๆ ที่ปรับเปลี่ยนในอนาคต และสร้างระบบ Continuous Integration (CI/CD) เพื่อสำรองข้อมูลให้มีประสิทธิภาพและพร้อมกู้คืนได้เสมอ
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- โมเดล IPO ของกรณีศึกษา THI-15 -->
+                    <div class="space-y-4 pt-4 border-t">
+                        <h3 class="text-lg font-bold text-dark flex items-center gap-2">
+                            📊 กรณีศึกษา: โมเดล IPO ของแบบประเมินสุขภาพจิต THI-15
+                        </h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            การวิเคราะห์ระบบที่ดีเริ่มจากการเข้าใจโมเดล <b>IPO (Input-Process-Output-Storage)</b> ซึ่งจะจำแนกเส้นทางการรับและแสดงผลข้อมูลของแอปพลิเคชันอย่างเป็นตรรกะ ดังรายละเอียดต่อไปนี้:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <!-- Input -->
+                            <div class="bg-white p-4 rounded-xl border border-sky-100 shadow-sm space-y-3">
+                                <div class="font-bold text-brand text-sm flex items-center gap-1.5">📥 Input (นำเข้า)</div>
+                                <div class="space-y-1 text-slate-600">
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• ลำดับประเมิน (<code class="text-brand">no</code>)</div>
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• วันที่และเวลา (<code class="text-brand">date_time</code>)</div>
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• รหัสนักศึกษา (<code class="text-brand">st_id</code>)</div>
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• ชื่อนักศึกษา (<code class="text-brand">name</code>)</div>
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• นามสกุล (<code class="text-brand">lname</code>)</div>
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• วันเกิด (<code class="text-brand">dob</code>)</div>
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• อีเมล (<code class="text-brand">email</code>)</div>
+                                    <div class="p-1.5 bg-sky-50/50 rounded">• หลักสูตร (<code class="text-brand">course</code>)</div>
+                                    <div class="p-1.5 bg-amber-50 rounded font-semibold text-amber-700">• คำตอบประเมิน 15 ข้อ (<code class="text-amber-700">q1 - q15</code>)</div>
+                                </div>
+                            </div>
+
+                            <!-- Process -->
+                            <div class="bg-white p-4 rounded-xl border border-amber-100 shadow-sm space-y-3">
+                                <div class="font-bold text-accent text-sm flex items-center gap-1.5">⚙️ Process (ประมวลผล)</div>
+                                <div class="space-y-2.5 text-slate-600">
+                                    <div class="p-2 bg-slate-50 rounded border">
+                                        <span class="font-bold text-dark block">ขั้นตอนที่ 1: การให้คะแนนรายข้อ</span>
+                                        <p class="text-[11px] text-green-600 mt-1">
+                                            <b>ข้อคำถามเชิงบวก (12 ข้อ):</b> q1, q4, q5, q6, q7, q8, q9, q10, q11, q13, q14, q15<br>
+                                            👉 ไม่เลย = 1 | เล็กน้อย = 2 | มาก = 3 | มากที่สุด = 4
+                                        </p>
+                                        <p class="text-[11px] text-red-500 mt-1.5">
+                                            <b>ข้อคำถามเชิงลบ (3 ข้อกลับ):</b> q2, q3, q12<br>
+                                            👉 ไม่เลย = 4 | เล็กน้อย = 3 | มาก = 2 | มากที่สุด = 1
+                                        </p>
+                                    </div>
+                                    <div class="p-2 bg-slate-50 rounded border">
+                                        <span class="font-bold text-dark block">ขั้นตอนที่ 2: แปลผลคะแนนรวม (เต็ม 60)</span>
+                                        <p class="text-[11px] mt-1 text-slate-700 space-y-0.5">
+                                            • 51 – 60 คะแนน: มีความสุขมากกว่าคนทั่วไป (Good)<br>
+                                            • 44 – 50 คะแนน: มีความสุขเท่ากับคนทั่วไป (Fair)<br>
+                                            • 43 คะแนน หรือต่ำกว่า: มีความสุขต่ำกว่าคนทั่วไป (Poor)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Output & Storage -->
+                            <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm space-y-3">
+                                <div class="font-bold text-success text-sm flex items-center gap-1.5">📤 Output & Storage</div>
+                                <div class="space-y-2">
+                                    <div class="p-2 bg-emerald-50 text-emerald-800 rounded border border-emerald-100">
+                                        <span class="font-bold block">Output (แสดงผลที่หน้าจอ)</span>
+                                        • คะแนนรวมสะสมที่คำนวณได้ (<code class="font-semibold">total</code>)<br>
+                                        • ผลประเมินแปลผลความสุข (<code class="font-semibold">result</code>)
+                                    </div>
+                                    <div class="p-2 bg-slate-900 text-slate-300 rounded">
+                                        <span class="font-bold text-accent block">💾 Storage (แหล่งเก็บรักษา)</span>
+                                        <p class="text-[10px] leading-relaxed">
+                                            เมื่อเกิดการทำงานและคำนวณผลลัพธ์แล้ว ข้อมูลจะส่งข้ามระบบและบันทึกลงสู่ตารางฐานข้อมูลใน <b>Google Sheets</b> ทันที เพื่อป้องกันข้อมูลสูญหายและเปิดดูย้อนหลังได้
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ภารกิจกลุ่ม คาบ 1 -->
+                    <div class="p-4 bg-amber-50/50 rounded-2xl border border-amber-200 space-y-2">
+                        <h4 class="font-bold text-accent text-sm flex items-center gap-1">👥 กิจกรรมปฏิบัติงานคู่ (Assignment 1):</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            ให้นักศึกษาทำการจับคู่กัน จากนั้นระดมสมองและเลือกค้นหาแบบสอบถามสุขภาพ สติปัญญา หรือระดับความซึมเศร้าที่เป็นแบบประเมินมีมาตรฐาน แล้วนำข้อมูลชุดนั้นมาวิเคราะห์และเขียนแยกองค์ประกอบตาม **IPO Model (Input, Process, Output, Storage)** โดยระบุด้วยว่าระบบของตนเองจำเป็นต้องสร้างตารางเก็บสิ่งใดเพื่อไม่ให้ข้อมูลหาย
+                        </p>
+                    </div>
+                </section>
+
+                <!-- คาบที่ 2 -->
+                <section id="content-2" class="session-content hidden bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="inline-block px-3 py-1 bg-sky-100 text-brand rounded-full text-xs font-bold tracking-wider">Session 2</div>
+                    <h2 class="text-2xl font-bold text-dark border-b pb-2">📋 มาตรฐานการออกแบบตารางและกำหนดฟิลด์ข้อมูล</h2>
+                    
+                    <!-- หลักการออกแบบชื่อฟิลด์ -->
+                    <div class="space-y-3 text-sm text-slate-600 leading-relaxed">
+                        <p class="font-bold text-dark text-base">💡 กฎเหล็กการกำหนดฟิลด์ข้อมูลตามมาตรฐานสากล:</p>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><span class="font-semibold text-dark">ใช้ภาษาอังกฤษตัวพิมพ์เล็กเป็นมาตรฐานสากล:</span> หลีกเลี่ยงตัวพิมพ์ใหญ่สลับเล็กเพื่อลดข้อผิดพลาด และ ห้ามใช้ภาษาไทยเด็ดขาด เช่น ใช้ <code class="bg-slate-100 px-1 py-0.5 rounded text-rose-500">st_id</code> แทนที่จะเขียน <code class="bg-slate-100 px-1 py-0.5 rounded text-rose-500">รหัสนักศึกษา</code> หรือ <code class="bg-slate-100 px-1 py-0.5 rounded text-rose-500">StudentID</code></li>
+                            <li><span class="font-semibold text-dark">ห้ามเว้นวรรค ให้เชื่อมด้วยสัญลักษณ์ Underscore (<code class="text-brand">_</code>) เสมอ:</span> เช่น ป้องกันข้อผิดพลาดจากการแปลชุดคำสั่งด้วยการสะกดว่า <code class="bg-slate-100 px-1 py-0.5 text-brand rounded">date_time</code> หรือ <code class="bg-slate-100 px-1 py-0.5 text-brand rounded">id_course</code> (ห้ามพิมพ์แบบมีช่องว่างเด็ดขาด)</li>
+                            <li><span class="font-semibold text-dark">หลีกเลี่ยงคำต้องห้ามที่เป็น Reserved Word:</span> คำบางคำเป็นฟังก์ชันเฉพาะของโปรแกรมฐานข้อมูล เช่น <code class="text-rose-500">Date</code>, <code class="text-rose-500">Time</code>, <code class="text-rose-500">Table</code>, <code class="text-rose-500">User</code> ควรกำหนดส่วนเสริมให้เฉพาะเจาะจงขึ้น เช่น <code class="text-brand">date_time</code> หรือ <code class="text-brand">user_status</code></li>
+                        </ul>
+                    </div>
+
+                    <!-- ตาราง Data Dictionary กรณีศึกษา THI-15 ครบถ้วนทุกตาราง -->
+                    <div class="space-y-6 pt-4 border-t">
+                        <h3 class="font-bold text-dark text-lg border-l-4 border-brand pl-2">📊 พจนานุกรมข้อมูลมาตรฐานครบทุกตาราง (Data Dictionary)</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            รายละเอียดของโครงสร้างฐานข้อมูลทั้ง 3 ตารางเพื่อใช้ในการสร้างคอลัมน์ใน Google Sheets
+                        </p>
+                        
+                        <!-- ตารางที่ 1: course -->
+                        <div class="space-y-2 bg-sky-50/40 p-4 rounded-xl border border-sky-100">
+                            <span class="font-bold text-sky-800 text-sm flex items-center gap-1.5">🗂️ 1. ตารางเก็บหลักสูตร (Table: course)</span>
+                            <div class="overflow-x-auto rounded-lg border bg-white border-slate-100">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-sky-500 text-white uppercase font-semibold">
+                                        <tr>
+                                            <th class="px-3 py-2">ชื่อฟิลด์ (English Field)</th>
+                                            <th class="px-3 py-2">คำอธิบายภาษาไทย</th>
+                                            <th class="px-3 py-2">ชนิดข้อมูล (Data Type)</th>
+                                            <th class="px-3 py-2">รายละเอียดและข้อกำหนด (Constraints)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-slate-600 divide-y">
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-sky-600">id_course</td>
+                                            <td class="px-3 py-2 font-medium">รหัสหลักสูตร</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">🔑 <b>Primary Key</b> (เช่น C001, C002) ห้ามเว้นว่าง ห้ามซ้ำ</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-sky-600">course</td>
+                                            <td class="px-3 py-2 font-medium">ชื่อหลักสูตร/สาขาวิชา</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">ชื่อวุฒิการศึกษาเต็ม (เช่น "วิทยาศาสตรบัณฑิต สาขาวิชาเวชระเบียน")</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ตารางที่ 2: member -->
+                        <div class="space-y-2 bg-amber-50/40 p-4 rounded-xl border border-amber-100">
+                            <span class="font-bold text-amber-800 text-sm flex items-center gap-1.5">👥 2. ตารางเก็บข้อมูลนักศึกษา (Table: member)</span>
+                            <div class="overflow-x-auto rounded-lg border bg-white border-slate-100">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-amber-500 text-white uppercase font-semibold">
+                                        <tr>
+                                            <th class="px-3 py-2">ชื่อฟิลด์ (English Field)</th>
+                                            <th class="px-3 py-2">คำอธิบายภาษาไทย</th>
+                                            <th class="px-3 py-2">ชนิดข้อมูล (Data Type)</th>
+                                            <th class="px-3 py-2">รายละเอียดและข้อกำหนด (Constraints)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-slate-600 divide-y">
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-amber-600">st_id</td>
+                                            <td class="px-3 py-2 font-medium">รหัสนักศึกษา</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">🔑 <b>Primary Key</b> (เช่น "5600001") ห้ามเว้นว่าง ห้ามซ้ำ ใช้ในการล็อกอิน</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-amber-600">name</td>
+                                            <td class="px-3 py-2 font-medium">ชื่อจริงนักศึกษา</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">ชื่อผู้ใช้ระบบภาษาไทย ไม่ระบุคำนำหน้าชื่อ</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-amber-600">lname</td>
+                                            <td class="px-3 py-2 font-medium">นามสกุลนักศึกษา</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">นามสกุลภาษาไทย</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-amber-600">dob</td>
+                                            <td class="px-3 py-2 font-medium">วันเดือนปีเกิด</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">รูปแบบตัวเลขล้วน ววดดปปปป (เช่น "29102534") ทำหน้าที่เป็นรหัสผ่าน (Password)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-amber-600">email</td>
+                                            <td class="px-3 py-2 font-medium">อีเมลสถาบัน</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">อีเมลองค์กร (เช่น nichapa.ja@kmpht.ac.th) เพื่อตรวจสอบความปลอดภัย</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-amber-600">id_course</td>
+                                            <td class="px-3 py-2 font-medium">รหัสหลักสูตร</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">🔗 <b>Foreign Key</b> เพื่อเชื่อมหาตาราง course สัมพันธ์ข้อมูลกัน</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-amber-600">status</td>
+                                            <td class="px-3 py-2 font-medium">สถานะผู้ใช้งาน</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">กำหนดสิทธิ์ของบัญชี ค่าเริ่มต้นคือ "student"</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- ตารางที่ 3: THI-15 -->
+                        <div class="space-y-2 bg-emerald-50/40 p-4 rounded-xl border border-emerald-100">
+                            <span class="font-bold text-emerald-800 text-sm flex items-center gap-1.5">📊 3. ตารางบันทึกผลการประเมิน (Table: THI-15)</span>
+                            <div class="overflow-x-auto rounded-lg border bg-white border-slate-100">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-emerald-500 text-white uppercase font-semibold">
+                                        <tr>
+                                            <th class="px-3 py-2">ชื่อฟิลด์ (English Field)</th>
+                                            <th class="px-3 py-2">คำอธิบายภาษาไทย</th>
+                                            <th class="px-3 py-2">ชนิดข้อมูล (Data Type)</th>
+                                            <th class="px-3 py-2">รายละเอียดและข้อกำหนด (Constraints)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-slate-600 divide-y">
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-emerald-600">no</td>
+                                            <td class="px-3 py-2 font-medium">ลำดับรายการ</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full font-semibold">Number / Auto</span></td>
+                                            <td class="px-3 py-2">🔑 <b>Primary Key</b> ลำดับการประเมิน รันเพิ่มอัตโนมัติเมื่อมีการส่งผล</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-emerald-600">date_time</td>
+                                            <td class="px-3 py-2 font-medium">วันที่เวลา</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded-full font-semibold">DateTime</span></td>
+                                            <td class="px-3 py-2">ประทับเวลาที่ทำรายการอัตโนมัติ (เช่น "08/07/2026 12:34:25")</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-emerald-600">st_id</td>
+                                            <td class="px-3 py-2 font-medium">รหัสนักศึกษา</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">🔗 <b>Foreign Key</b> ระบุรหัสนักศึกษาที่เป็นเจ้าของคะแนนประเมินนี้</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-emerald-600">q1 - q15</td>
+                                            <td class="px-3 py-2 font-medium">ข้อคำถามที่ 1 ถึง 15</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full font-semibold">Number</span></td>
+                                            <td class="px-3 py-2">เก็บค่าคำตอบของแต่ละข้อคำถามเป็นตัวเลขมีค่าระหว่าง 1 ถึง 4 เสมอ</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-emerald-600">total</td>
+                                            <td class="px-3 py-2 font-medium">คะแนนรวมสะสม</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full font-semibold">Number</span></td>
+                                            <td class="px-3 py-2">คำนวณผ่านเกณฑ์เชิงบวกและเชิงลบ (ช่วงคะแนน 15 - 60)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-bold text-emerald-600">result</td>
+                                            <td class="px-3 py-2 font-medium">ผลการวิเคราะห์ระดับความสุข</td>
+                                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full font-semibold">Text</span></td>
+                                            <td class="px-3 py-2">แปรผลตามเกณฑ์: Good (สุขมาก), Fair (สุขเท่าทั่วไป), Poor (สุขต่ำกว่าทั่วไป)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ภารกิจคู่ คาบ 2 -->
+                    <div class="p-4 bg-amber-50/50 rounded-2xl border border-amber-200 space-y-2">
+                        <h4 class="font-bold text-accent text-sm flex items-center gap-1">👥 กิจกรรมปฏิบัติงานคู่ (Assignment 2):</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            ให้นักศึกษาคู่เดิมนำหัวข้อแบบสอบถามที่ผ่านการคัดสรรจากคาบเรียนที่ 1 มาออกแบบพจนานุกรมข้อมูล (Data Dictionary) ลงในรูปแบบของตารางที่สมบูรณ์ โดยระบุการกำหนดฟิลด์ข้อมูลเป็นมาตรฐานภาษาอังกฤษ เชื่อมคำด้วย Underscore ชนิดข้อมูล และคำอธิบายภาษาไทยให้ละเอียดทุกคอลัมน์
+                        </p>
+                    </div>
+                </section>
+
+                <!-- คาบที่ 3 -->
+                <section id="content-3" class="session-content hidden bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="inline-block px-3 py-1 bg-sky-100 text-brand rounded-full text-xs font-bold tracking-wider">Session 3</div>
+                    <h2 class="text-2xl font-bold text-dark border-b pb-2">📂 Database Design & System Flow</h2>
+
+                    <!-- ความสัมพันธ์ของฐานข้อมูลแบบเชื่อมโยงเชิงสัมพันธ์ -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-bold text-dark">🔗 1. แผนภาพเชื่อมโยงตารางสัมพันธ์ (Relational Schema)</h3>
+                        <p class="text-slate-600 text-xs">
+                            ใน Google Sheets เราจะสร้างตารางจัดเก็บข้อมูลแบ่งแยกกัน 3 แผ่นชีท และเชื่อมความสัมพันธ์ถึงกันด้วยฟิลด์คีย์ เพื่อประสิทธิภาพการประมวลผลและการรักษาความสอดคล้องกันของข้อมูล:
+                        </p>
+                        
+                        <!-- Visual DB Schema Lines -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] relative">
+                            <!-- Course -->
+                            <div class="bg-sky-50 border border-sky-200 rounded-xl p-3.5 space-y-1.5 shadow-sm">
+                                <div class="bg-brand text-white px-2 py-0.5 rounded font-bold text-center">Sheet: course</div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800 bg-white/70 p-1 rounded">
+                                        <span>🔑 id_course</span><span>[PK - Text]</span>
+                                    </div>
+                                    <div class="p-1">course_name</div>
+                                </div>
+                            </div>
+                            <!-- Member -->
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 space-y-1.5 shadow-sm">
+                                <div class="bg-accent text-white px-2 py-0.5 rounded font-bold text-center">Sheet: member</div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800 bg-white/70 p-1 rounded">
+                                        <span>🔑 st_id</span><span>[PK - Text]</span>
+                                    </div>
+                                    <div class="p-1">name</div>
+                                    <div class="p-1">lname</div>
+                                    <div class="p-1">dob</div>
+                                    <div class="p-1">email</div>
+                                    <div class="flex justify-between font-semibold text-blue-700 bg-blue-50 p-1 rounded border border-blue-100">
+                                        <span>🔗 id_course</span><span>[FK]</span>
+                                    </div>
+                                    <div class="p-1">status</div>
+                                </div>
+                            </div>
+                            <!-- THI-15 Results -->
+                            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-1.5 shadow-sm">
+                                <div class="bg-success text-white px-2 py-0.5 rounded font-bold text-center">Sheet: THI-15</div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between font-bold text-slate-800 bg-white/70 p-1 rounded">
+                                        <span>🔑 no</span><span>[PK - Auto]</span>
+                                    </div>
+                                    <div class="p-1">date_time</div>
+                                    <div class="flex justify-between font-semibold text-amber-700 bg-amber-50 p-1 rounded border border-amber-100">
+                                        <span>🔗 st_id</span><span>[FK]</span>
+                                    </div>
+                                    <div class="p-1 text-slate-400">q1 - q15</div>
+                                    <div class="p-1">total</div>
+                                    <div class="p-1">result</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-slate-50 border rounded-lg text-[11px] text-slate-500 leading-relaxed">
+                            💡 <b>PK (Primary Key)</b>: คีย์หลักที่ระบุความเฉพาะเจาะจงของแถวนั้นๆ ป้องกันสับสน | 
+                            <b>FK (Foreign Key)</b>: คีย์ต่างประเทศสำหรับเชื่อมโยงไปที่ฐานข้อมูลหลัก
+                        </div>
+                    </div>
+
+                    <!-- ผังการไหลเวียนเดินทางของข้อมูล -->
+                    <div class="space-y-4 pt-4 border-t">
+                        <h3 class="text-lg font-bold text-dark">🔄 2. แผนผัง System Flow: การเดินทางของข้อมูลในระบบ</h3>
+                        <p class="text-slate-600 text-xs">
+                            แผนผังการไหลของข้อมูลจำลองสถานะและการเดินทางของตัวแปรตั้งแต่หน้าจอบราวเซอร์ไปจนถึงคลาวด์ดาต้าเบส:
+                        </p>
+                        
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm flex items-start gap-3">
+                                <div class="w-6 h-6 bg-brand text-white font-bold rounded-full flex items-center justify-center flex-shrink-0">1</div>
+                                <div>
+                                    <span class="font-bold block text-dark">ขั้นตอนล็อกอิน (Login Flow)</span>
+                                    <p class="text-slate-500 mt-0.5">กรอก รหัสนักศึกษา (<code class="text-brand">st_id</code>) และวันเกิด (<code class="text-brand">dob</code>) ➡️ หน้าจอส่งคำขอตรวจสอบไปยัง Google Apps Script ➡️ ตรวจค้นหากับข้อมูลในชีท <code class="font-semibold text-slate-700">member</code> ➡️ ส่งผลตอบกลับทาง Client</p>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm flex items-start gap-3">
+                                <div class="w-6 h-6 bg-brand text-white font-bold rounded-full flex items-center justify-center flex-shrink-0">2</div>
+                                <div>
+                                    <span class="font-bold block text-dark">ขั้นตอนแสดงผลและตรวจสอบประวัติ (History Loading)</span>
+                                    <p class="text-slate-500 mt-0.5">เมื่อยืนยันสิทธิ์ผ่านระบบ ➡️ ระบบเรียกใช้สคริปต์ดึงประวัติเก่าจากชีท <code class="font-semibold text-slate-700">THI-15</code> โดยกรองเฉพาะชุดข้อมูลที่ฟิลด์ <code class="text-brand">st_id</code> ตรงกันกับเซสชันล็อกอิน ➡️ แสดงสถิติและคะแนนประเมินย้อนหลัง</p>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm flex items-start gap-3">
+                                <div class="w-6 h-6 bg-brand text-white font-bold rounded-full flex items-center justify-center flex-shrink-0">3</div>
+                                <div>
+                                    <span class="font-bold block text-dark">ขั้นตอนการตอบแบบประเมินและประมวลผล (Evaluation Submit)</span>
+                                    <p class="text-slate-500 mt-0.5">ผู้ใช้ทำแบบประเมินและกดส่งคำตอบ ➡️ ระบบคำนวณสลับข้อคำถามเชิงบวก-ลบที่เครื่องเซิร์ฟเวอร์ ➡️ จัดกลุ่มแปรผลตามเกณฑ์ ➡️ ทำบันทึกข้อมูลและส่งเพิ่มแถวแบบสอบถามไปชีท <code class="font-semibold text-slate-700">THI-15</code> ทันที</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ภารกิจคู่ คาบ 3 -->
+                    <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200 space-y-2">
+                        <h4 class="font-bold text-success text-sm flex items-center gap-1">👥 กิจกรรมปฏิบัติงานคู่ (Assignment 3):</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            ให้นักศึกษาคู่เดิมวาดความสัมพันธ์ของตารางฐานข้อมูลและทิศทางการเดินทางข้อมูล (System Flow) ของแอปพลิเคชันระบบสารสนเทศสุขภาพที่ท่านเลือกพัฒนา โดยระบุความสัมพันธ์ของข้อมูล การแลกเปลี่ยนข้อมูลข้ามฝั่งหน้าร้านและหลังบ้านให้สมบูรณ์
+                        </p>
+                    </div>
+                </section>
+
+                <!-- คาบที่ 4 -->
+                <section id="content-4" class="session-content hidden bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="inline-block px-3 py-1 bg-sky-100 text-brand rounded-full text-xs font-bold tracking-wider">Session 4</div>
+                    
+                    <!-- ส่วนสถาปัตยกรรม Client-Server -->
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-bold text-dark border-b pb-2">🏠 1. สถาปัตยกรรมระบบ Client-Server (อธิบายผ่านร้านอาหาร)</h2>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            การทำงานประสานของเว็บแอปพลิเคชันที่มีระบบฐานข้อมูลประกอบ สามารถเปรียบเทียบกับส่วนประกอบของ <b>ร้านอาหาร</b> ได้อย่างเป็นสัดส่วน ดังนี้:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="p-4 bg-sky-50 border border-sky-100 rounded-2xl space-y-2 text-center">
+                                <span class="text-2xl block">🏠</span>
+                                <span class="font-bold text-brand block">Client (หน้าร้าน / HTML + JS)</span>
+                                <p class="text-slate-500 leading-relaxed">เปรียบเสมือน <b>สมุดเมนูที่อยู่บนโต๊ะอาหาร</b> และบริเวณที่ลูกค้านั่งรับชม สื่อสารกับลูกค้า สแกนเลือกส่งข้อมูลผ่านอินเทอร์เฟซ</p>
+                            </div>
+                            <div class="p-4 bg-amber-50 border border-amber-100 rounded-2xl space-y-2 text-center">
+                                <span class="text-2xl block">👨‍🍳</span>
+                                <span class="font-bold text-accent block">Server (ห้องครัว / Apps Script)</span>
+                                <p class="text-slate-500 leading-relaxed">เปรียบเสมือน <b>เชฟผู้ปรุงอาหารอยู่ในครัว</b> รับคำสั่งมาทำคำนวณสูตร ล็อกอิน และจัดการระบบตามเงื่อนไขอย่างถูกต้องเป็นส่วนสัด</p>
+                            </div>
+                            <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl space-y-2 text-center">
+                                <span class="text-2xl block">🧊</span>
+                                <span class="font-bold text-success block">Database (คลังอาหาร / Google Sheets)</span>
+                                <p class="text-slate-500 leading-relaxed">เปรียบเสมือน <b>ตู้เย็นเก็บวัตถุดิบ</b> เป็นตู้เก็บข้อมูลทุกอย่างที่สำคัญ มีความเสถียรและปลอดภัยเป็นหลักแหล่งเพื่อดึงไปปรุงและจัดเรียงได้</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ส่วนประยุกต์ใช้ AI และ Prompt Engineering -->
+                    <div class="space-y-4 pt-4 border-t">
+                        <h3 class="text-lg font-bold text-dark flex items-center gap-2">
+                            🤖 2. เทคนิคการเขียน Prompt สั่งการ AI ในการวิเคราะห์และพัฒนาระบบ
+                        </h3>
+                        <p class="text-slate-600 text-xs">
+                            เพื่อความถูกต้องในการเขียนชุดคำสั่งด้วย AI (เช่น Gemini, ChatGPT) การระบุโครงสร้างและกฎเกณฑ์ข้อมูล (Prompt Engineering) คือคีย์สำคัญสูงสุดของวิศวกรยุคใหม่:
+                        </p>
+
+                        <div class="space-y-3 text-xs font-mono">
+                            <!-- Case 1 -->
+                            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <span class="font-bold text-brand flex items-center gap-1">📋 กรณีที่ 1: สั่งเขียนตารางการคำนวณและแปลผลลัพธ์</span>
+                                <div class="bg-slate-950 p-3 rounded border border-slate-800 text-cyan-300">
+                                    "ฉันต้องการออกแบบระบบคำนวณค่าดัชนีคะแนนประเมินจำนวน 15 ข้อ โดยมีกฎประมวลผลข้อคำถามบวกที่ได้คะแนน 1-4 และมีข้อคำถามเชิงกลับคะแนนข้อ 2, 3, 12 ที่ประเมิน 4-1 คะแนน โดยมีคะแนนรวมเต็ม 60 คะแนน มีเกณฑ์ประเมินแปลผลคือ Good, Fair, Poor และเมื่อคำนวณผลเรียบร้อยแล้วให้ส่งข้อมูลทั้งหมดเพิ่มแถวบันทึกลงฐานข้อมูล Google Sheets ชีทชื่อ THI-15"
+                                </div>
+                            </div>
+
+                            <!-- Case 2 -->
+                            <div class="bg-slate-900 text-slate-100 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <span class="font-bold text-brand flex items-center gap-1">🛠️ กรณีที่ 2: สั่งเพิ่มและขยายฟิลด์ข้อมูลฐานข้อมูล</span>
+                                <div class="bg-slate-950 p-3 rounded border border-slate-800 font-mono text-cyan-300">
+                                    "กรุณาอัปเดตฟังก์ชันบันทึกข้อมูลในไฟล์ Code.gs และแบบฟอร์มหน้าจอใน Index.html ให้รอบรับข้อมูลสมาชิกเพิ่มเติม โดยอ้างอิงฟิลด์พจนานุกรมข้อมูลที่แนบมานี้ (แนบพจนานุกรมตารางจากคาบ 2) ตัวแปรทั้งหมดในสคริปต์ให้ใช้ภาษาอังกฤษสัญสากล ไม่เว้นวรรค และไม่มีการสะกดผิดพลาด"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ภารกิจคู่ คาบ 4 -->
+                    <div class="p-4 bg-sky-500/10 rounded-2xl border border-sky-200 space-y-2">
+                        <h4 class="font-bold text-brand text-sm flex items-center gap-1">💻 กิจกรรมปฏิบัติสอบท้ายบทเรียนปฏิบัติ (Assignment 4):</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            ให้นักศึกษานำผลงานการออกแบบแผนงานวิเคราะห์ข้อมูล และพิมพ์เขียวของกลุ่มคู่ตั้งแต่ คาบเรียนที่ 1, 2 และ 3 มาประยุกต์ร่วมกับการเรียนรู้ Prompt Engineering เพื่อทำการพัฒนา ดัดแปลง และเขียนโค้ดต่อยอดจากระบบเดิมของท่านให้กลายเป็นเว็บแอปสุขภาพจริงที่ทำงานได้ และทำการส่งทดลอง Deploy ขึ้นสู่ระบบเว็บแอปออนไลน์ และใช้งานล็อกอินผ่านมือถือร่วมทดสอบต่อหน้าอาจารย์ผู้สอน
+                        </p>
+                    </div>
+                </section>
+
+                <!-- คาบที่ 5: ตัวอย่างซอร์สโค้ดระบบจริง -->
+                <section id="content-5" class="session-content hidden bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+                    <div class="inline-block px-3 py-1 bg-sky-100 text-brand rounded-full text-xs font-bold tracking-wider">Source Code v2.5</div>
+                    <h2 class="text-2xl font-bold text-dark border-b pb-2">💻 ซอร์สโค้ดระบบประเมินตนเอง THI-15 (ฉบับสมบูรณ์)</h2>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        ซอร์สโค้ดชุดนี้ประกอบด้วยสองไฟล์หลักที่ทำงานประสานงานร่วมกันแบบก้าวหน้า สามารถนำไปติดตั้งใช้งานจริง ร่วมกับระบบการประเมิน ตารางวิเคราะห์ผู้ใช้ และรายงานภาพรวมระบบที่มีความปลอดภัยสูงได้ทันที:
+                    </p>
+
+                    <div class="space-y-6">
+                        <!-- โค้ดที่ 1: Code.gs -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center bg-slate-900 text-slate-200 px-4 py-3 rounded-t-xl text-xs font-mono">
+                                <span class="flex items-center gap-1.5 font-bold"><span class="w-2.5 h-2.5 bg-yellow-400 rounded-full inline-block animate-pulse"></span> 📄 1. สคริปต์หลังบ้าน (Code.gs)</span>
+                                <button onclick="copyCode('codeGsBlock', this)" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded transition font-semibold flex items-center gap-1">
+                                    📋 คัดลอกโค้ด
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <pre id="codeGsBlock" class="text-xs p-4 bg-slate-950 text-cyan-400 overflow-x-auto rounded-b-xl max-h-[350px] font-mono leading-relaxed select-all">function doGet() {
+  return HtmlService.createTemplateFromFile('Index')
+    .evaluate()
+    .setTitle('ระบบประเมินตนเอง THI-15')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function getCourses() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('course');
+    if (!sheet) return [];
+    const data = sheet.getDataRange().getValues();
+    const courses = [];
+    for (let i = 1; i &lt; data.length; i++) {
+      if (data[i][0]) {
+        courses.push({
+          id: data[i][0].toString().trim(),
+          name: data[i][1] ? data[i][1].toString().trim() : ''
+        });
+      }
+    }
+    return courses;
+  } catch (e) {
+    return [];
+  }
+}
+
+function loginUser(st_id, dob) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('member');
+    if (!sheet) return { success: false, message: 'ไม่พบตารางข้อมูลสมาชิก member' };
+    const data = sheet.getDataRange().getValues();
+    const inputId = String(st_id).trim();
+    const inputDob = String(dob).trim();
+    for (let i = 1; i &lt; data.length; i++) {
+      let rowId = String(data[i][0]).trim();
+      let rowDob = String(data[i][3]).trim();
+      if (rowId === inputId && rowDob === inputDob) {
+        return {
+          success: true,
+          user: {
+            st_id: data[i][0],
+            name: (data[i][1] || '') + ' ' + (data[i][2] || ''),
+            course: data[i][5] || ''
+          }
+        };
+      }
+    }
+    return { success: false, message: 'รหัสนักศึกษา หรือ วันเกิดไม่ถูกต้อง' };
+  } catch (error) {
+    return { success: false, message: 'เกิดข้อผิดพลาดของระบบ: ' + error.message };
+  }
+}
+
+function registerMember(memberData) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('member');
+    const data = sheet.getDataRange().getValues();
+    const newId = String(memberData.st_id).trim();
+    for (let i = 1; i &lt; data.length; i++) {
+      if (String(data[i][0]).trim() === newId) {
+        return { success: false, message: 'รหัสนักศึกษานี้เคยลงทะเบียนแล้ว' };
+      }
+    }
+    sheet.appendRow([
+      newId,
+      memberData.name.trim(),
+      memberData.lname.trim(),
+      String(memberData.dob).trim(),
+      memberData.email.trim(),
+      memberData.course.trim(),
+      "student"
+    ]);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+}
+
+function submitAssessment(formData) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('THI-15');
+    const data = sheet.getDataRange().getValues();
+    let lastNo = 0;
+    if (data.length &gt; 1) {
+      lastNo = parseInt(data[data.length - 1][0]) || 0;
+    }
+    const formattedDate = Utilities.formatDate(new Date(), "Asia/Bangkok", "dd/MM/yyyy HH:mm:ss");
+    sheet.appendRow([
+      lastNo + 1,
+      formattedDate,
+      formData.st_id,
+      formData.q1, formData.q2, formData.q3,
+      formData.q4, formData.q5, formData.q6,
+      formData.q7, formData.q8, formData.q9,
+      formData.q10, formData.q11, formData.q12,
+      formData.q13, formData.q14, formData.q15,
+      formData.total,
+      formData.result
+    ]);
+    return { success: true };
+  } catch (e) {
+    return { success: false, message: e.message };
+  }
+}
+
+function getHistory(st_id) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName('THI-15');
+    const data = sheet.getDataRange().getValues();
+    const historyList = [];
+    const searchId = String(st_id).trim();
+    for (let i = data.length - 1; i >= 1; i--) {
+      if (String(data[i][2]).trim() === searchId) {
+        historyList.push({
+          no: data[i][0],
+          datetime: data[i][1],
+          total: data[i][18],
+          result: data[i][19]
+        });
+      }
+    }
+    return { success: true, data: historyList };
+  } catch (error) {
+    return { success: false, message: error.toString() };
+  }
+}
+
+function getSystemSummary() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const thiSheet = ss.getSheetByName('THI-15');
+    const memberSheet = ss.getSheetByName('member');
+    const courseSheet = ss.getSheetByName('course');
+    if (!thiSheet || !memberSheet || !courseSheet) {
+      return { success: false, message: 'ไม่พบชีทที่จำเป็นในการวิเคราะห์ระบบ' };
+    }
+    const thiData = thiSheet.getDataRange().getValues();
+    const memberData = memberSheet.getDataRange().getValues();
+    const courseData = courseSheet.getDataRange().getValues();
+    
+    const uniqueStudents = {};
+    for (let i = 1; i &lt; thiData.length; i++) {
+      let stId = String(thiData[i][2]).trim();
+      let total = parseInt(thiData[i][18]);
+      let result = String(thiData[i][19]).trim();
+      let timeStr = String(thiData[i][1]).trim();
+      if (stId) {
+        if (!uniqueStudents[stId] || i &gt; uniqueStudents[stId].rowIndex) {
+          uniqueStudents[stId] = { total, result, rowIndex: i };
+        }
+      }
+    }
+    
+    const courseMap = {};
+    for (let i = 1; i &lt; courseData.length; i++) {
+      let cId = String(courseData[i][0]).trim();
+      let cName = String(courseData[i][1]).trim();
+      if (cId) courseMap[cId] = cName;
+    }
+    
+    const studentCourseMap = {};
+    for (let i = 1; i &lt; memberData.length; i++) {
+      let stId = String(memberData[i][0]).trim();
+      let cId = String(memberData[i][5]).trim();
+      if (stId && cId) studentCourseMap[stId] = cId;
+    }
+    
+    const courseCounts = {};
+    for (let cId in courseMap) { courseCounts[cId] = 0; }
+    
+    let resultCounts = { "Good": 0, "Fair": 0, "Poor": 0 };
+    let totalUniqueStudents = 0;
+
+    for (let stId in uniqueStudents) {
+      totalUniqueStudents++;
+      let cId = studentCourseMap[stId];
+      if (cId && courseCounts[cId] !== undefined) {
+        courseCounts[cId]++;
+      }
+      let resText = uniqueStudents[stId].result;
+      if (resText.includes("Good") || resText.includes("มากกว่า")) resultCounts["Good"]++;
+      else if (resText.includes("Fair") || resText.includes("เท่ากับ")) resultCounts["Fair"]++;
+      else resultCounts["Poor"]++;
+    }
+    
+    const summaryData = [];
+    for (let cId in courseCounts) {
+      summaryData.push({
+        courseId: cId,
+        courseName: courseMap[cId],
+        count: courseCounts[cId]
+      });
+    }
+    summaryData.sort((a, b) =&gt; b.count - a.count);
+    
+    return {
+      success: true,
+      totalAssessedUnique: totalUniqueStudents,
+      summaryData: summaryData,
+      resultCounts: resultCounts
+    };
+  } catch (error) {
+    return { success: false, message: error.toString() };
+  }
+}</pre>
+                            </div>
+                        </div>
+
+                        <!-- โค้ดที่ 2: Index.html -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center bg-slate-900 text-slate-200 px-4 py-3 rounded-t-xl text-xs font-mono">
+                                <span class="flex items-center gap-1.5 font-bold"><span class="w-2.5 h-2.5 bg-orange-500 rounded-full inline-block animate-pulse"></span> 📄 2. หน้าต่างผู้ใช้งานหน้าบ้าน (Index.html)</span>
+                                <button onclick="copyCode('codeIndexBlock', this)" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded transition font-semibold flex items-center gap-1">
+                                    📋 คัดลอกโค้ด
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <pre id="codeIndexBlock" class="text-xs p-4 bg-slate-950 text-amber-400 overflow-x-auto rounded-b-xl max-h-[350px] font-mono leading-relaxed select-all">&lt;!DOCTYPE html&gt;
+&lt;html lang="th"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;ระบบประเมินตนเอง THI-15&lt;/title&gt;
+    &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"&gt;&lt;/script&gt;
+    &lt;link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet"&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+    &lt;script&gt;
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
+                    colors: { primary: '#0ea5e9', secondary: '#0284c7', bglight: '#f0f9ff' }
+                }
+            }
+        }
+    &lt;/script&gt;
+    &lt;style&gt;
+        body { background-color: #f0f9ff; }
+        .hidden { display: none !important; }
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .spinner {
+            border: 4px solid #bae6fd; border-top: 4px solid #0ea5e9;
+            border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body class="text-slate-800 antialiased font-sans"&gt;
+
+    &lt;div id="loader" class="hidden"&gt;&lt;div class="spinner"&gt;&lt;/div&gt;&lt;/div&gt;
+
+    &lt;div class="min-h-screen pb-10"&gt;
+        &lt;nav id="navbar" class="hidden bg-primary text-white shadow-md p-4"&gt;
+            &lt;div class="max-w-5xl mx-auto flex justify-between items-center"&gt;
+                &lt;div class="font-semibold text-lg md:text-xl"&gt;📊 THI-15 Assessment&lt;/div&gt;
+                &lt;div class="flex items-center gap-4"&gt;
+                    &lt;div class="hidden md:flex flex-col items-end text-right"&gt;
+                        &lt;span id="nav-username" class="text-sm md:text-base font-semibold text-white"&gt;&lt;/span&gt;
+                        &lt;span id="nav-course" class="text-xs text-sky-200 mt-0.5"&gt;&lt;/span&gt;
+                    &lt;/div&gt;
+                    &lt;button onclick="logout()" class="bg-white hover:bg-sky-50 text-primary font-semibold px-4 py-1.5 rounded-lg text-sm transition shadow-sm"&gt;ออกจากระบบ&lt;/button&gt;
+                </div>
+            </pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast Notification แจ้งเตือนเมื่อ Copy โค้ดสำเร็จ -->
+    <div id="toastBox" class="fixed top-4 right-4 z-50 pointer-events-none transition-all duration-300 transform translate-y-[-20px] opacity-0">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 text-xs flex items-center gap-2">
+            <span class="text-success text-base">🟢</span>
+            <span class="font-medium">คัดลอกซอร์สโค้ดสำเร็จ! สามารถนำไปใช้ใน Google Apps Script ได้ทันที</span>
+        </div>
+    </div>
+
+    <script>
+        let skillChartInstance = null;
+
+        // ฟังก์ชันสลับบทเรียน (Tab Router)
+        function showSession(id) {
+            // ซ่อนบทเรียนทั้งหมด
+            document.querySelectorAll('.session-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.session-tab').forEach(el => el.classList.remove('active'));
+            
+            // แสดงเฉพาะบทเรียนที่เลือก
+            document.getElementById('content-' + id).classList.remove('hidden');
+            document.getElementById('tab-' + id).classList.add('active');
+            
+            // ปรับเลื่อนหน้าจอสำหรับผู้ใช้งานมือถือ
+            if (window.innerWidth < 1024) {
+                document.getElementById('content-' + id).scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // ฟังก์ชันในการคัดลอกซอร์สโค้ด
+        function copyCode(elementId, button) {
+            const pre = document.getElementById(elementId);
+            const text = pre.innerText;
+
+            // วิธีดั้งเดิมเพื่อรองรับการคัดลอกใน Iframe
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed'; // หลีกเลี่ยงผลกระทบกับเลย์เอาต์หน้าจอ
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                const success = document.execCommand('copy');
+                if (success) {
+                    // แสดง Toast แจ้งเตือนสำเร็จ
+                    const toast = document.getElementById('toastBox');
+                    toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+                    toast.classList.add('translate-y-0', 'opacity-100');
+
+                    // เปลี่ยนสีปุ่มเป็นสีเขียวชั่วคราว
+                    const origText = button.innerText;
+                    button.innerText = "✓ คัดลอกแล้ว!";
+                    button.classList.remove('bg-slate-800');
+                    button.classList.add('bg-success');
+
+                    setTimeout(() => {
+                        toast.classList.add('translate-y-[-20px]', 'opacity-0');
+                        toast.classList.remove('translate-y-0', 'opacity-100');
+                        button.innerText = origText;
+                        button.classList.add('bg-slate-800');
+                        button.classList.remove('bg-success');
+                    }, 2500);
+                }
+            } catch (err) {
+                alert("ไม่สามารถคัดลอกโค้ดได้อัตโนมัติ กรุณาคลิกขวาและเลือกคุมดำด้วยตนเอง");
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // วาดกราฟสรุปสัดส่วนทักษะโดย Chart.js
+        function initChart() {
+            const ctx = document.getElementById('skillChart').getContext('2d');
+            
+            if (skillChartInstance) skillChartInstance.destroy();
+
+            skillChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SAD & SDLC', 'ตารางข้อมูล', 'ออกแบบโฟลว์', 'AI & เขียนโค้ด'],
+                    datasets: [{
+                        data: [35, 25, 20, 20],
+                        backgroundColor: ['#0ea5e9', '#f59e0b', '#10b981', '#0f172a'],
+                        borderWidth: 0,
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                padding: 12,
+                                font: { size: 10, family: 'Kanit' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = initChart;
+    </script>
+</body>
+</html>
